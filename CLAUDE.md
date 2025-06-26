@@ -129,3 +129,9 @@ To test the plugin locally in Neovim:
 - Import map configuration in `deno.json` is crucial for testing dependencies
 - BDD testing style with `@std/testing/bdd` works well for Denops plugin testing
 - TDD approach helps clarify plugin architecture before implementation
+
+**TDD Implementation Success**:
+- Successfully implemented getTestAtCursor() and detectPackageManager() functions using TDD
+- Created utility functions in src/utils.ts separate from Denops plugin code for easier testing
+- All tests pass - test file detection, test name extraction, and package manager detection work correctly
+- Key learning: Test file names in test cases must match the regex pattern for proper validation
