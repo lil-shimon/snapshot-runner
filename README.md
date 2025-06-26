@@ -57,7 +57,7 @@ Updates all test snapshots in the project using the detected package manager:
 
 This automatically detects your package manager (npm/yarn/pnpm) and runs the equivalent of `npm run test:fix`.
 
-#### `:SnapshotTest` (Coming Soon)
+#### `:SnapshotTest` ✨ New!
 Updates the snapshot for the specific test at your cursor position:
 
 ```vim
@@ -65,6 +65,13 @@ Updates the snapshot for the specific test at your cursor position:
 ```
 
 Position your cursor inside a test function and run this command to update only that test's snapshot.
+
+#### `:SnapshotAll`
+Alias for `:Snapshot` - updates all test snapshots:
+
+```vim
+:SnapshotAll
+```
 
 ### Supported Test Patterns
 
