@@ -26,6 +26,15 @@ use {
 }
 ```
 
+Using [lazy.nvim](https://github.com/folke/lazy.nvim):
+
+```lua
+{
+  'lil-shimon/snapshot-runner',
+  dependencies = {'vim-denops/denops.vim'}
+}
+```
+
 ## Usage
 
 Run the following command in Neovim:
