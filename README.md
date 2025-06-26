@@ -14,14 +14,14 @@ Using [vim-plug](https://github.com/junegunn/vim-plug):
 
 ```vim
 Plug 'vim-denops/denops.vim'
-Plug 'your-username/snapshot-runner'
+Plug 'lil-shimon/snapshot-runner'
 ```
 
 Using [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
 use {
-  'your-username/snapshot-runner',
+  'lil-shimon/snapshot-runner',
   requires = {'vim-denops/denops.vim'}
 }
 ```
