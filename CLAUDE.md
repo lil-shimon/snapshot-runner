@@ -2,6 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## MANDATORY WORKFLOW RULES
+
+**1. Auto-commit and Push After File Edits**:
+- ALWAYS commit and push immediately after editing any file
+- Do not wait for user instruction to commit
+- Use descriptive commit messages following the established format
+
+**2. Session Reflection and Learning**:
+- After EVERY user prompt, reflect on the work done in that interaction
+- If there are improvements, insights, or workflow preferences discovered, immediately update this CLAUDE.md file
+- Add new learnings to the "Development Notes & Improvements" section with date stamps
+- This creates a continuous learning loop for better assistance
+
 ## Project Overview
 
 This is a Neovim plugin built with **Denops** (Deno-based plugin system) that provides commands to update test snapshots. The current implementation runs `npm run test:fix` to update all snapshots, with planned enhancements to update specific tests at cursor position.
@@ -89,6 +102,11 @@ To test the plugin locally in Neovim:
 ## Development Notes & Improvements
 
 ### 2024-12-26 Session Learnings:
+
+**Workflow Rule Clarification**:
+- User emphasized that auto-commit/push after file edits should be a MANDATORY rule, not just a preference
+- Session reflection and CLAUDE.md updates should also be MANDATORY after every user interaction
+- These are strong enforcement rules, not suggestions
 
 **Git Workflow Preferences**:
 - User prefers commits organized by file categories rather than logical features
