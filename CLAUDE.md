@@ -135,3 +135,10 @@ To test the plugin locally in Neovim:
 - Created utility functions in src/utils.ts separate from Denops plugin code for easier testing
 - All tests pass - test file detection, test name extraction, and package manager detection work correctly
 - Key learning: Test file names in test cases must match the regex pattern for proper validation
+
+**README Documentation Update**:
+- Updated README to reflect current features and planned functionality
+- Added comprehensive features section with clear descriptions
+- Documented both current (:Snapshot) and planned (:SnapshotTest) commands
+- Added development section with Deno task commands for contributors
+- README now accurately represents the project's capabilities and roadmap
