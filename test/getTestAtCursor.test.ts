@@ -42,7 +42,7 @@ describe("getTestAtCursor", () => {
         "});",
       ];
       
-      const result = getTestAtCursor("test.js", 4, fileContent);
+      const result = getTestAtCursor("example.test.js", 4, fileContent);
       assertEquals(result, "should add two numbers");
     });
     
@@ -54,7 +54,7 @@ describe("getTestAtCursor", () => {
         "});",
       ];
       
-      const result = getTestAtCursor("test.js", 2, fileContent);
+      const result = getTestAtCursor("example.test.js", 2, fileContent);
       assertEquals(result, "validates email format");
     });
     
@@ -69,7 +69,7 @@ describe("getTestAtCursor", () => {
         "});",
       ];
       
-      const result = getTestAtCursor("test.js", 4, fileContent);
+      const result = getTestAtCursor("example.test.js", 4, fileContent);
       assertEquals(result, "should login with valid credentials");
     });
   });
