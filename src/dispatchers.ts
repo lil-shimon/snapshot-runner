@@ -66,7 +66,8 @@ export async function snapshotTestDispatcher(
       await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Failed to update snapshot: ${result.message}" | echohl None`);
     }
   } catch (error) {
-    await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Error: ${error.message}" | echohl None`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Error: ${errorMessage}" | echohl None`);
   }
 }
 
@@ -95,7 +96,8 @@ export async function snapshotDispatcher(
       await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Failed to update snapshots: ${result.message}" | echohl None`);
     }
   } catch (error) {
-    await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Error running ${packageManager} run test:fix: ${error.message}" | echohl None`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Error running ${packageManager} run test:fix: ${errorMessage}" | echohl None`);
   }
 }
 
