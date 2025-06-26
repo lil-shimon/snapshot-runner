@@ -151,3 +151,10 @@ To test the plugin locally in Neovim:
 - All 22 test cases pass with comprehensive coverage
 - Updated README to reflect completed SnapshotTest feature (changed from "Coming Soon" to "New!")
 - Plugin now supports both global and specific test snapshot updates with auto package manager detection
+
+**Project Documentation and Roadmap Update**:
+- Updated ROADMAP.md with clear separation of completed features and future plans
+- Added CHANGELOG.md following Keep a Changelog format for v1.0.0 release
+- Prioritized future features: async execution (high), config options (high), Visual mode (medium)
+- Documented 7 future features with detailed implementation plans
+- Established development principles: TDD, Denops API utilization, UX focus
