@@ -1,7 +1,6 @@
 import { assertEquals } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-
-// getTestAtCursor関数のテスト
+import { getTestAtCursor, isTestFile } from "../src/utils.ts";
 describe("getTestAtCursor", () => {
   describe("テストファイルの判定", () => {
     it("should return null for non-test files", () => {
@@ -13,9 +12,8 @@ describe("getTestAtCursor", () => {
       ];
       
       for (const fileName of testCases) {
-        // TODO: getTestAtCursor関数を実装してテスト
-        // const result = getTestAtCursor(fileName, 1, []);
-        // assertEquals(result, null);
+        const result = getTestAtCursor(fileName, 1, []);
+        assertEquals(result, null);
       }
     });
     
@@ -28,7 +26,8 @@ describe("getTestAtCursor", () => {
       ];
       
       for (const fileName of testCases) {
-        // TODO: ファイルがテストファイルとして認識されることを確認
+        const isTest = isTestFile(fileName);
+        assertEquals(isTest, true);
       }
     });
   });
@@ -43,7 +42,8 @@ describe("getTestAtCursor", () => {
         "});",
       ];
       
-      // TODO: カーソル位置4でテスト名 "should add two numbers" を検出
+      const result = getTestAtCursor("test.js", 4, fileContent);
+      assertEquals(result, "should add two numbers");
     });
     
     it("should detect test name from test() block", () => {
@@ -54,7 +54,8 @@ describe("getTestAtCursor", () => {
         "});",
       ];
       
-      // TODO: テスト名 "validates email format" を検出
+      const result = getTestAtCursor("test.js", 2, fileContent);
+      assertEquals(result, "validates email format");
     });
     
     it("should detect nested test in describe block", () => {
@@ -68,7 +69,8 @@ describe("getTestAtCursor", () => {
         "});",
       ];
       
-      // TODO: テスト名 "should login with valid credentials" を検出
+      const result = getTestAtCursor("test.js", 4, fileContent);
+      assertEquals(result, "should login with valid credentials");
     });
   });
 });
