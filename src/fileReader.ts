@@ -1,4 +1,5 @@
 // 効率的なファイル読み込みとキャッシュ機能
+import { createError, wrapError } from "./errors.ts";
 
 export interface FileReadResult {
   success: boolean;
@@ -41,8 +42,12 @@ export async function readFileContent(filePath: string): Promise<FileReadResult>
     
     return { success: true, content: lines };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return { success: false, content: [], error: errorMessage };
+    if (error instanceof Deno.errors.NotFound) {
+      const wrappedError = createError('FILE_NOT_FOUND', `File not found: ${filePath}`, { filePath });
+      return { success: false, content: [], error: wrappedError.toUserMessage() };
+    }
+    const wrappedError = wrapError(error, 'FILE_READ_ERROR');
+    return { success: false, content: [], error: wrappedError.toUserMessage() };
   }
 }
 
@@ -50,19 +55,49 @@ export async function readFileContent(filePath: string): Promise<FileReadResult>
  * 安全なパス検証
  */
 export function validateFilePath(filePath: string): boolean {
-  if (!filePath || typeof filePath !== 'string') return false;
-  if (filePath.length === 0) return false;
-  if (filePath.includes('..')) return false; // Path traversal prevention
-  return true;
+  try {
+    if (!filePath || typeof filePath !== 'string') {
+      throw createError('INVALID_FILE_PATH', 'File path must be a non-empty string', { filePath });
+    }
+    if (filePath.length === 0) {
+      throw createError('INVALID_FILE_PATH', 'File path cannot be empty', { filePath });
+    }
+    if (filePath.includes('..')) {
+      throw createError('INVALID_FILE_PATH', 'Path traversal detected', { filePath });
+    }
+    return true;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'SnapshotRunnerError') {
+      // Re-throw our custom errors
+      throw error;
+    }
+    throw wrapError(error, 'INVALID_FILE_PATH');
+  }
 }
 
 /**
  * 行番号の境界チェック
  */
 export function validateLineNumber(lineNumber: number, fileContent: string[]): boolean {
-  if (!Number.isInteger(lineNumber)) return false;
-  if (lineNumber < 1 || lineNumber > fileContent.length) return false;
-  return true;
+  try {
+    if (!Number.isInteger(lineNumber)) {
+      throw createError('INVALID_LINE_NUMBER', 'Line number must be an integer', { lineNumber });
+    }
+    if (lineNumber < 1 || lineNumber > fileContent.length) {
+      throw createError(
+        'INVALID_LINE_NUMBER',
+        `Line number ${lineNumber} is out of bounds (1-${fileContent.length})`,
+        { lineNumber, maxLines: fileContent.length }
+      );
+    }
+    return true;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'SnapshotRunnerError') {
+      // Re-throw our custom errors
+      throw error;
+    }
+    throw wrapError(error, 'INVALID_LINE_NUMBER');
+  }
 }
 
 /**

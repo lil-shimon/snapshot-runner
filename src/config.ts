@@ -51,51 +51,102 @@ export function resetConfig(): void {
 }
 
 /**
- * Vim設定の型定義
+ * 型ガード関数群
  */
-export interface VimConfig {
-  test_command?: unknown;
-  test_runner?: unknown;
-  show_notifications?: unknown;
-  auto_save_before_run?: unknown;
-  timeout?: unknown;
-  custom_test_patterns?: unknown;
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+function isBoolean(value: unknown): value is boolean {
+  return typeof value === 'boolean';
+}
+
+function isPositiveNumber(value: unknown): value is number {
+  return typeof value === 'number' && value > 0 && Number.isFinite(value);
+}
+
+function isValidTestRunner(value: unknown): value is 'auto' | 'jest' | 'vitest' {
+  return typeof value === 'string' && ['auto', 'jest', 'vitest'].includes(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(item => typeof item === 'string');
 }
 
 /**
- * Vim変数から設定を読み込み
+ * Vim設定の安全な読み込み関数群
+ */
+function safeGetTestCommand(obj: Record<string, unknown>): string | undefined {
+  const value = obj.test_command;
+  return isString(value) ? value : undefined;
+}
+
+function safeGetTestRunner(obj: Record<string, unknown>): 'auto' | 'jest' | 'vitest' | undefined {
+  const value = obj.test_runner;
+  return isValidTestRunner(value) ? value : undefined;
+}
+
+function safeGetShowNotifications(obj: Record<string, unknown>): boolean | undefined {
+  const value = obj.show_notifications;
+  return isBoolean(value) ? value : undefined;
+}
+
+function safeGetAutoSaveBeforeRun(obj: Record<string, unknown>): boolean | undefined {
+  const value = obj.auto_save_before_run;
+  return isBoolean(value) ? value : undefined;
+}
+
+function safeGetTimeout(obj: Record<string, unknown>): number | undefined {
+  const value = obj.timeout;
+  return isPositiveNumber(value) && value <= 300000 ? value : undefined; // 5分上限
+}
+
+function safeGetCustomTestPatterns(obj: Record<string, unknown>): string[] | undefined {
+  const value = obj.custom_test_patterns;
+  return isStringArray(value) ? value : undefined;
+}
+
+/**
+ * Vim変数から設定を読み込み（型安全版）
  */
 export function loadConfigFromVim(vimConfig: unknown): void {
-  if (!vimConfig || typeof vimConfig !== 'object') return;
+  // 入力検証
+  if (!vimConfig || typeof vimConfig !== 'object' || vimConfig === null) {
+    return;
+  }
   
-  const typedConfig = vimConfig as VimConfig;
+  const configObj = vimConfig as Record<string, unknown>;
   const config: Partial<PluginConfig> = {};
   
-  if (typeof typedConfig.test_command === 'string') {
-    config.testCommand = typedConfig.test_command;
+  // 各設定を安全に抽出
+  const testCommand = safeGetTestCommand(configObj);
+  if (testCommand !== undefined) {
+    config.testCommand = testCommand;
   }
   
-  if (typeof typedConfig.test_runner === 'string' && 
-      ['auto', 'jest', 'vitest'].includes(typedConfig.test_runner)) {
-    config.testRunner = typedConfig.test_runner as 'auto' | 'jest' | 'vitest';
+  const testRunner = safeGetTestRunner(configObj);
+  if (testRunner !== undefined) {
+    config.testRunner = testRunner;
   }
   
-  if (typeof typedConfig.show_notifications === 'boolean') {
-    config.showNotifications = typedConfig.show_notifications;
+  const showNotifications = safeGetShowNotifications(configObj);
+  if (showNotifications !== undefined) {
+    config.showNotifications = showNotifications;
   }
   
-  if (typeof typedConfig.auto_save_before_run === 'boolean') {
-    config.autoSaveBeforeRun = typedConfig.auto_save_before_run;
+  const autoSaveBeforeRun = safeGetAutoSaveBeforeRun(configObj);
+  if (autoSaveBeforeRun !== undefined) {
+    config.autoSaveBeforeRun = autoSaveBeforeRun;
   }
   
-  if (typeof typedConfig.timeout === 'number' && typedConfig.timeout > 0) {
-    config.timeout = typedConfig.timeout;
+  const timeout = safeGetTimeout(configObj);
+  if (timeout !== undefined) {
+    config.timeout = timeout;
   }
   
-  if (Array.isArray(typedConfig.custom_test_patterns)) {
-    config.customTestPatterns = typedConfig.custom_test_patterns.filter(
-      (pattern: unknown): pattern is string => typeof pattern === 'string'
-    );
+  const customTestPatterns = safeGetCustomTestPatterns(configObj);
+  if (customTestPatterns !== undefined) {
+    config.customTestPatterns = customTestPatterns;
   }
   
   updateConfig(config);

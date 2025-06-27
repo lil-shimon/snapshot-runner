@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 import { describe, it, beforeEach, afterEach } from "@std/testing/bdd";
 
 // ファイル読み込み最適化のテスト
@@ -63,11 +63,11 @@ describe("FileReader optimization", () => {
       assertEquals(validateFilePath("/valid/path/file.js"), true);
       assertEquals(validateFilePath("file.js"), true);
       
-      // Invalid paths
-      assertEquals(validateFilePath(""), false);
-      assertEquals(validateFilePath("../../../etc/passwd"), false);
-      assertEquals(validateFilePath(null as never), false);
-      assertEquals(validateFilePath(undefined as never), false);
+      // Invalid paths should throw errors
+      assertThrows(() => validateFilePath(""), Error, "File path must be a non-empty string");
+      assertThrows(() => validateFilePath("../../../etc/passwd"), Error, "Path traversal detected");
+      assertThrows(() => validateFilePath(null as never), Error, "File path must be a non-empty string");
+      assertThrows(() => validateFilePath(undefined as never), Error, "File path must be a non-empty string");
     });
     
     it("should handle line number bounds checking", async () => {
@@ -79,12 +79,12 @@ describe("FileReader optimization", () => {
       assertEquals(validateLineNumber(2, fileContent), true);
       assertEquals(validateLineNumber(3, fileContent), true);
       
-      // Invalid line numbers
-      assertEquals(validateLineNumber(0, fileContent), false);
-      assertEquals(validateLineNumber(4, fileContent), false);
-      assertEquals(validateLineNumber(-1, fileContent), false);
-      assertEquals(validateLineNumber(1.5, fileContent), false);
-      assertEquals(validateLineNumber(NaN, fileContent), false);
+      // Invalid line numbers should throw errors
+      assertThrows(() => validateLineNumber(0, fileContent), Error, "Line number 0 is out of bounds");
+      assertThrows(() => validateLineNumber(4, fileContent), Error, "Line number 4 is out of bounds");
+      assertThrows(() => validateLineNumber(-1, fileContent), Error, "Line number -1 is out of bounds");
+      assertThrows(() => validateLineNumber(1.5, fileContent), Error, "Line number must be an integer");
+      assertThrows(() => validateLineNumber(NaN, fileContent), Error, "Line number must be an integer");
     });
   });
 });

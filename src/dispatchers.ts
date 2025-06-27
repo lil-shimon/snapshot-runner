@@ -1,5 +1,6 @@
 // Denopsディスパッチャー関数（テスト可能な形で分離）
 import { detectPackageManager, getTestAtCursor, isTestFile } from "./utils.ts";
+import { createError, wrapError, formatErrorMessage } from "./errors.ts";
 
 export interface MockDenops {
   cmd(command: string): Promise<void>;
@@ -66,8 +67,8 @@ export async function snapshotTestDispatcher(
       await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Failed to update snapshot: ${result.message}" | echohl None`);
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Error: ${errorMessage}" | echohl None`);
+    const wrappedError = wrapError(error, 'COMMAND_EXECUTION_ERROR');
+    await mockDenops.cmd(`echohl ErrorMsg | echo "${formatErrorMessage(wrappedError)}" | echohl None`);
   }
 }
 
@@ -96,8 +97,8 @@ export async function snapshotDispatcher(
       await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Failed to update snapshots: ${result.message}" | echohl None`);
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Error running ${packageManager} run test:fix: ${errorMessage}" | echohl None`);
+    const wrappedError = wrapError(error, 'COMMAND_EXECUTION_ERROR');
+    await mockDenops.cmd(`echohl ErrorMsg | echo "Error running ${packageManager} run test:fix: ${formatErrorMessage(wrappedError)}" | echohl None`);
   }
 }
 
@@ -109,19 +110,28 @@ async function executeActualCommand(
   args: string[], 
   cwd: string
 ): Promise<ExecuteCommandResult> {
-  const process = new Deno.Command(cmd, {
-    args: args,
-    cwd: cwd,
-    stdout: "piped",
-    stderr: "piped",
-  });
-  
-  const { code, stdout: _stdout, stderr } = await process.output();
-  
-  if (code === 0) {
-    return { success: true, message: "Success", command: [cmd, ...args] };
-  } else {
-    const errorMsg = new TextDecoder().decode(stderr);
-    return { success: false, message: errorMsg.trim(), command: [cmd, ...args] };
+  try {
+    const process = new Deno.Command(cmd, {
+      args: args,
+      cwd: cwd,
+      stdout: "piped",
+      stderr: "piped",
+    });
+    
+    const { code, stdout: _stdout, stderr } = await process.output();
+    
+    if (code === 0) {
+      return { success: true, message: "Success", command: [cmd, ...args] };
+    } else {
+      const errorMsg = new TextDecoder().decode(stderr);
+      return { success: false, message: errorMsg.trim(), command: [cmd, ...args] };
+    }
+  } catch (error) {
+    const wrappedError = wrapError(error, 'COMMAND_EXECUTION_ERROR');
+    return { 
+      success: false, 
+      message: wrappedError.toDetailedMessage(), 
+      command: [cmd, ...args] 
+    };
   }
 }
