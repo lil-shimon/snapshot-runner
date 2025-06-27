@@ -51,36 +51,50 @@ export function resetConfig(): void {
 }
 
 /**
+ * Vim設定の型定義
+ */
+export interface VimConfig {
+  test_command?: unknown;
+  test_runner?: unknown;
+  show_notifications?: unknown;
+  auto_save_before_run?: unknown;
+  timeout?: unknown;
+  custom_test_patterns?: unknown;
+}
+
+/**
  * Vim変数から設定を読み込み
  */
-export function loadConfigFromVim(vimConfig: any): void {
+export function loadConfigFromVim(vimConfig: unknown): void {
   if (!vimConfig || typeof vimConfig !== 'object') return;
   
+  const typedConfig = vimConfig as VimConfig;
   const config: Partial<PluginConfig> = {};
   
-  if (typeof vimConfig.test_command === 'string') {
-    config.testCommand = vimConfig.test_command;
+  if (typeof typedConfig.test_command === 'string') {
+    config.testCommand = typedConfig.test_command;
   }
   
-  if (['auto', 'jest', 'vitest'].includes(vimConfig.test_runner)) {
-    config.testRunner = vimConfig.test_runner;
+  if (typeof typedConfig.test_runner === 'string' && 
+      ['auto', 'jest', 'vitest'].includes(typedConfig.test_runner)) {
+    config.testRunner = typedConfig.test_runner as 'auto' | 'jest' | 'vitest';
   }
   
-  if (typeof vimConfig.show_notifications === 'boolean') {
-    config.showNotifications = vimConfig.show_notifications;
+  if (typeof typedConfig.show_notifications === 'boolean') {
+    config.showNotifications = typedConfig.show_notifications;
   }
   
-  if (typeof vimConfig.auto_save_before_run === 'boolean') {
-    config.autoSaveBeforeRun = vimConfig.auto_save_before_run;
+  if (typeof typedConfig.auto_save_before_run === 'boolean') {
+    config.autoSaveBeforeRun = typedConfig.auto_save_before_run;
   }
   
-  if (typeof vimConfig.timeout === 'number' && vimConfig.timeout > 0) {
-    config.timeout = vimConfig.timeout;
+  if (typeof typedConfig.timeout === 'number' && typedConfig.timeout > 0) {
+    config.timeout = typedConfig.timeout;
   }
   
-  if (Array.isArray(vimConfig.custom_test_patterns)) {
-    config.customTestPatterns = vimConfig.custom_test_patterns.filter(
-      (pattern: any) => typeof pattern === 'string'
+  if (Array.isArray(typedConfig.custom_test_patterns)) {
+    config.customTestPatterns = typedConfig.custom_test_patterns.filter(
+      (pattern: unknown): pattern is string => typeof pattern === 'string'
     );
   }
   

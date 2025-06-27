@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "@std/assert";
+import { assertEquals } from "@std/assert";
 import { describe, it, beforeEach, afterEach } from "@std/testing/bdd";
 
 // ファイル読み込み最適化のテスト
@@ -66,8 +66,8 @@ describe("FileReader optimization", () => {
       // Invalid paths
       assertEquals(validateFilePath(""), false);
       assertEquals(validateFilePath("../../../etc/passwd"), false);
-      assertEquals(validateFilePath(null as any), false);
-      assertEquals(validateFilePath(undefined as any), false);
+      assertEquals(validateFilePath(null as never), false);
+      assertEquals(validateFilePath(undefined as never), false);
     });
     
     it("should handle line number bounds checking", async () => {

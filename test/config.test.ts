@@ -71,9 +71,9 @@ describe("Plugin configuration", () => {
       const { loadConfigFromVim, getConfig } = await import("../src/config.ts");
       
       const vimConfig = {
-        test_command: 123, // invalid type
-        test_runner: 'invalid', // invalid value
-        timeout: -1000 // invalid value
+        test_command: 123 as unknown, // invalid type
+        test_runner: 'invalid' as unknown, // invalid value
+        timeout: -1000 as unknown // invalid value
       };
       
       loadConfigFromVim(vimConfig);

@@ -116,7 +116,7 @@ async function executeActualCommand(
     stderr: "piped",
   });
   
-  const { code, stdout, stderr } = await process.output();
+  const { code, stdout: _stdout, stderr } = await process.output();
   
   if (code === 0) {
     return { success: true, message: "Success", command: [cmd, ...args] };

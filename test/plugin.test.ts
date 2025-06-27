@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "@std/assert";
+import { assertEquals } from "@std/assert";
 import { describe, it, beforeEach, afterEach } from "@std/testing/bdd";
 import { snapshotTestDispatcher, snapshotDispatcher, type MockDenops, type FileInfo, type ExecuteCommandResult } from "../src/dispatchers.ts";
 
@@ -20,7 +20,7 @@ describe("snapshot-runner plugin integration", () => {
       await Deno.writeTextFile(`${tempDir}/package-lock.json`, "{}");
       
       const mockDenops: MockDenops = {
-        cmd: async (command: string) => {
+        cmd: async (_command: string) => {
           // Mock Denops command execution
         }
       };
@@ -38,9 +38,9 @@ describe("snapshot-runner plugin integration", () => {
       };
       
       let executedCommand: string[] = [];
-      const mockExecuteCommand = async (cmd: string, args: string[], cwd: string): Promise<ExecuteCommandResult> => {
+      const mockExecuteCommand = (cmd: string, args: string[], _cwd: string): Promise<ExecuteCommandResult> => {
         executedCommand = [cmd, ...args];
-        return { success: true, message: "Success" };
+        return Promise.resolve({ success: true, message: "Success" });
       };
       
       await snapshotTestDispatcher(tempDir, fileInfo, mockDenops, mockExecuteCommand);
@@ -50,8 +50,9 @@ describe("snapshot-runner plugin integration", () => {
     
     it("should show warning when cursor is not in test file", async () => {
       const mockDenops: MockDenops = {
-        cmd: async (command: string) => {
+        cmd: (command: string) => {
           assertEquals(command, 'echohl WarningMsg | echo "⚠️  Not a test file" | echohl None');
+          return Promise.resolve();
         }
       };
       
@@ -66,8 +67,9 @@ describe("snapshot-runner plugin integration", () => {
     
     it("should show warning when no test found at cursor", async () => {
       const mockDenops: MockDenops = {
-        cmd: async (command: string) => {
+        cmd: (command: string) => {
           assertEquals(command, 'echohl WarningMsg | echo "⚠️  No test found at cursor position" | echohl None');
+          return Promise.resolve();
         }
       };
       
@@ -88,7 +90,7 @@ describe("snapshot-runner plugin integration", () => {
       await Deno.writeTextFile(`${tempDir}/yarn.lock`, "");
       
       const mockDenops: MockDenops = {
-        cmd: async (command: string) => {}
+        cmd: async (_command: string) => {}
       };
       
       const fileInfo: FileInfo = {
@@ -100,9 +102,9 @@ describe("snapshot-runner plugin integration", () => {
       };
       
       let executedCommand: string[] = [];
-      const mockExecuteCommand = async (cmd: string, args: string[], cwd: string): Promise<ExecuteCommandResult> => {
+      const mockExecuteCommand = (cmd: string, args: string[], _cwd: string): Promise<ExecuteCommandResult> => {
         executedCommand = [cmd, ...args];
-        return { success: true, message: "Success" };
+        return Promise.resolve({ success: true, message: "Success" });
       };
       
       await snapshotTestDispatcher(tempDir, fileInfo, mockDenops, mockExecuteCommand);
@@ -116,13 +118,13 @@ describe("snapshot-runner plugin integration", () => {
       await Deno.writeTextFile(`${tempDir}/package-lock.json`, "{}");
       
       const mockDenops: MockDenops = {
-        cmd: async (command: string) => {}
+        cmd: async (_command: string) => {}
       };
       
       let executedCommand: string[] = [];
-      const mockExecuteCommand = async (cmd: string, args: string[], cwd: string): Promise<ExecuteCommandResult> => {
+      const mockExecuteCommand = (cmd: string, args: string[], _cwd: string): Promise<ExecuteCommandResult> => {
         executedCommand = [cmd, ...args];
-        return { success: true, message: "Success" };
+        return Promise.resolve({ success: true, message: "Success" });
       };
       
       await snapshotDispatcher(tempDir, mockDenops, mockExecuteCommand);
@@ -134,13 +136,13 @@ describe("snapshot-runner plugin integration", () => {
       await Deno.writeTextFile(`${tempDir}/pnpm-lock.yaml`, "");
       
       const mockDenops: MockDenops = {
-        cmd: async (command: string) => {}
+        cmd: async (_command: string) => {}
       };
       
       let executedCommand: string[] = [];
-      const mockExecuteCommand = async (cmd: string, args: string[], cwd: string): Promise<ExecuteCommandResult> => {
+      const mockExecuteCommand = (cmd: string, args: string[], _cwd: string): Promise<ExecuteCommandResult> => {
         executedCommand = [cmd, ...args];
-        return { success: true, message: "Success" };
+        return Promise.resolve({ success: true, message: "Success" });
       };
       
       await snapshotDispatcher(tempDir, mockDenops, mockExecuteCommand);
@@ -150,15 +152,16 @@ describe("snapshot-runner plugin integration", () => {
     
     it("should handle command execution failure", async () => {
       const mockDenops: MockDenops = {
-        cmd: async (command: string) => {
+        cmd: (command: string) => {
           if (command.includes("❌ Failed to update snapshots")) {
             // Expected error message
           }
+          return Promise.resolve();
         }
       };
       
-      const mockExecuteCommand = async (cmd: string, args: string[], cwd: string): Promise<ExecuteCommandResult> => {
-        return { success: false, message: "Command failed", command: [cmd, ...args] };
+      const mockExecuteCommand = (cmd: string, args: string[], _cwd: string): Promise<ExecuteCommandResult> => {
+        return Promise.resolve({ success: false, message: "Command failed", command: [cmd, ...args] });
       };
       
       await snapshotDispatcher(tempDir, mockDenops, mockExecuteCommand);
