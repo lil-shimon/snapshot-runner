@@ -108,6 +108,11 @@ function safeGetCustomTestPatterns(obj: Record<string, unknown>): string[] | und
   return isStringArray(value) ? value : undefined;
 }
 
+function safeGetAsyncExecution(obj: Record<string, unknown>): boolean | undefined {
+  const value = obj.async_execution;
+  return isBoolean(value) ? value : undefined;
+}
+
 /**
  * Vim変数から設定を読み込み（型安全版）
  */
@@ -149,6 +154,11 @@ export function loadConfigFromVim(vimConfig: unknown): void {
   const customTestPatterns = safeGetCustomTestPatterns(configObj);
   if (customTestPatterns !== undefined) {
     config.customTestPatterns = customTestPatterns;
+  }
+  
+  const asyncExecution = safeGetAsyncExecution(configObj);
+  if (asyncExecution !== undefined) {
+    config.asyncExecution = asyncExecution;
   }
   
   updateConfig(config);
