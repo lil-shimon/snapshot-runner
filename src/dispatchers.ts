@@ -1,6 +1,6 @@
 // Denopsディスパッチャー関数（テスト可能な形で分離）
 import { detectPackageManager, getTestAtCursor, isTestFile } from "./utils.ts";
-import { createError, wrapError, formatErrorMessage } from "./errors.ts";
+import { wrapError, formatErrorMessage } from "./errors.ts";
 
 export interface MockDenops {
   cmd(command: string): Promise<void>;
