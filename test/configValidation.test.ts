@@ -9,8 +9,6 @@ describe("Config validation improvements", () => {
 
   describe("Type guard functions", () => {
     it("should reject invalid test runners", async () => {
-      const { loadConfigFromVim, getConfig } = await import("../src/config.ts");
-      
       const invalidConfigs = [
         { test_runner: "invalid_runner" },
         { test_runner: 123 },
@@ -85,8 +83,6 @@ describe("Config validation improvements", () => {
     });
     
     it("should handle edge cases gracefully", async () => {
-      const { loadConfigFromVim, getConfig } = await import("../src/config.ts");
-      
       const edgeCases = [
         null,
         undefined,
