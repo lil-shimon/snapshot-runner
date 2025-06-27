@@ -11,6 +11,9 @@ A Neovim plugin using Denops that provides intelligent test snapshot updating co
 - 📊 **Progress Tracking** - Real-time progress display with spinner, elapsed time, and test count
 - 🛑 **Cancellation Support** - Cancel long-running operations with Ctrl+C
 - 📝 **Execution Logs** - Detailed logging of test execution with `:SnapshotLogs`
+- 🔍 **Interactive Diff Preview** - Preview and selectively apply snapshot changes with `:SnapshotDiff`
+- ✅ **Selective Updates** - Approve or reject individual snapshot changes before applying
+- 🎨 **Syntax Highlighting** - Color-coded diff viewer with before/after comparisons
 - 🔧 **TDD Developed** - Built with comprehensive test coverage using Deno testing
 
 ## Requirements
@@ -91,6 +94,26 @@ Clear all execution logs:
 ```vim
 :SnapshotClearLogs
 ```
+
+#### `:SnapshotDiff` ✨ New!
+Preview snapshot changes before applying them:
+
+```vim
+:SnapshotDiff
+```
+
+Shows an interactive diff viewer where you can:
+- See what snapshots will be created, updated, or deleted
+- Approve or reject individual changes with `a` and `r`
+- Approve all changes with `A` or reject all with `R`
+- Apply approved changes with `<Enter>`
+- Quit without applying with `q`
+
+The diff viewer includes:
+- Syntax highlighting for different change types
+- Before/after comparison for updated snapshots
+- File paths and test names for each change
+- Real-time status updates as you approve/reject changes
 
 ### Supported Test Patterns
 

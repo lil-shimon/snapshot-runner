@@ -7,6 +7,7 @@ import { getExecutionLogger } from "./executionLog.ts";
 
 export interface MockDenops {
   cmd(command: string): Promise<void>;
+  eval?(expr: string): Promise<unknown>;
 }
 
 export interface FileInfo {

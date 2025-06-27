@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Execution logging system with timestamped entries
 - `:SnapshotLogs` command to view execution history
 - `:SnapshotClearLogs` command to clear log history
+- `:SnapshotDiff` command for interactive diff preview and selective updates
+- Interactive diff viewer with syntax highlighting and keyboard shortcuts
+- Selective approval/rejection of individual snapshot changes
+- Before/after comparison view for updated snapshots
 - Comprehensive configuration options via `g:snapshot_runner`
 - Improved async execution with progress feedback
 
