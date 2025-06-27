@@ -25,7 +25,7 @@ export async function readFileContent(filePath: string): Promise<FileReadResult>
     const stat = await Deno.stat(filePath);
     const cached = fileCache[filePath];
     
-    if (cached && cached.lastModified >= stat.mtime?.getTime() || 0) {
+    if (cached && cached.lastModified >= (stat.mtime?.getTime() || 0)) {
       return { success: true, content: cached.content };
     }
     
