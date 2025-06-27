@@ -8,6 +8,9 @@ A Neovim plugin using Denops that provides intelligent test snapshot updating co
 - 🎯 **Cursor-based Test Detection** - Update snapshots for specific tests at your cursor position
 - 📁 **Test File Recognition** - Supports `.test.js`, `.spec.ts`, and other common test file patterns
 - ⚡ **Fast Execution** - Non-blocking asynchronous command execution
+- 📊 **Progress Tracking** - Real-time progress display with spinner, elapsed time, and test count
+- 🛑 **Cancellation Support** - Cancel long-running operations with Ctrl+C
+- 📝 **Execution Logs** - Detailed logging of test execution with `:SnapshotLogs`
 - 🔧 **TDD Developed** - Built with comprehensive test coverage using Deno testing
 
 ## Requirements
@@ -73,6 +76,22 @@ Alias for `:Snapshot` - updates all test snapshots:
 :SnapshotAll
 ```
 
+#### `:SnapshotLogs` ✨ New!
+View detailed execution logs in a new buffer:
+
+```vim
+:SnapshotLogs
+```
+
+Shows timestamped logs with syntax highlighting for errors and success messages.
+
+#### `:SnapshotClearLogs` ✨ New!
+Clear all execution logs:
+
+```vim
+:SnapshotClearLogs
+```
+
 ### Supported Test Patterns
 
 The plugin recognizes these test patterns:
@@ -84,6 +103,34 @@ The plugin recognizes these test patterns:
 
 - `.test.js`, `.test.ts`, `.test.jsx`, `.test.tsx`
 - `.spec.js`, `.spec.ts`, `.spec.jsx`, `.spec.tsx`
+
+## Configuration
+
+Configure the plugin by setting `g:snapshot_runner` in your Neovim config:
+
+```vim
+let g:snapshot_runner = {
+  \ 'show_progress': v:true,
+  \ 'show_spinner': v:true,
+  \ 'show_elapsed_time': v:true,
+  \ 'show_percentage': v:true,
+  \ 'progress_update_interval': 100,
+  \ 'show_execution_log': v:false,
+  \ 'async_execution': v:true
+  \ }
+```
+
+### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `show_progress` | boolean | `true` | Enable/disable progress tracking display |
+| `show_spinner` | boolean | `true` | Show animated spinner during execution |
+| `show_elapsed_time` | boolean | `true` | Display elapsed time during execution |
+| `show_percentage` | boolean | `true` | Show test completion percentage when available |
+| `progress_update_interval` | number | `100` | Progress update interval in milliseconds (50-1000) |
+| `show_execution_log` | boolean | `false` | Enable real-time logging to messages |
+| `async_execution` | boolean | `true` | Run commands asynchronously (non-blocking) |
 
 ## Development
 

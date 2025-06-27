@@ -2,6 +2,8 @@
 import { detectPackageManager, getTestAtCursor, isTestFile } from "./utils.ts";
 import { wrapError, formatErrorMessage } from "./errors.ts";
 import { getConfig } from "./config.ts";
+import { ProgressTracker, executeCommandWithProgress } from "./progress.ts";
+import { getExecutionLogger } from "./executionLog.ts";
 
 export interface MockDenops {
   cmd(command: string): Promise<void>;
@@ -17,6 +19,7 @@ export interface ExecuteCommandResult {
   success: boolean;
   message: string;
   command?: string[];
+  cancelled?: boolean;
 }
 
 /**
@@ -85,24 +88,63 @@ export async function snapshotDispatcher(
   const packageManager = await detectPackageManager(cwd);
   
   try {
-    if (config.asyncExecution) {
-      await mockDenops.cmd('echo "Starting async snapshot update..."');
+    const args = ["run", "test:fix"];
+    
+    if (config.showProgress) {
+      // プログレストラッキングを使用
+      const progressTracker = new ProgressTracker(mockDenops, {
+        showSpinner: config.showSpinner,
+        showElapsedTime: config.showElapsedTime,
+        showPercentage: config.showPercentage,
+        updateInterval: config.progressUpdateInterval
+      });
       
-      // 非同期実行：結果を待たずにバックグラウンドで実行
-      executeAsyncCommand(packageManager, ["run", "test:fix"], cwd, mockDenops, executeCommand);
-    } else {
-      await mockDenops.cmd('echo "Running snapshot update..."');
-      
-      const args = ["run", "test:fix"];
-      
-      const result = executeCommand 
-        ? await executeCommand(packageManager, args, cwd)
-        : await executeActualCommand(packageManager, args, cwd);
-      
-      if (result.success) {
-        await mockDenops.cmd('echo "✅ Snapshot tests updated successfully!"');
+      if (config.asyncExecution) {
+        await progressTracker.start("Starting async snapshot update...");
+        
+        // 非同期実行
+        executeAsyncCommandWithProgress(packageManager, args, cwd, mockDenops, progressTracker, executeCommand);
       } else {
-        await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Failed to update snapshots: ${result.message}" | echohl None`);
+        await progressTracker.start("Running snapshot update...");
+        
+        const result = executeCommand
+          ? await executeCommand(packageManager, args, cwd)
+          : await executeCommandWithProgress({
+              command: packageManager,
+              args,
+              cwd,
+              progressTracker,
+              onProgress: config.showExecutionLog ? async (output) => {
+                const logger = getExecutionLogger(mockDenops);
+                await logger.addLog(output.trim());
+              } : undefined
+            });
+        
+        if (result.cancelled) {
+          await progressTracker.stop(undefined, "Snapshot update cancelled");
+        } else if (result.success) {
+          await progressTracker.stop("Snapshot tests updated successfully!");
+        } else {
+          await progressTracker.stop(undefined, `Failed to update snapshots: ${result.message}`);
+        }
+      }
+    } else {
+      // 従来の方法（プログレス表示なし）
+      if (config.asyncExecution) {
+        await mockDenops.cmd('echo "Starting async snapshot update..."');
+        executeAsyncCommand(packageManager, args, cwd, mockDenops, executeCommand);
+      } else {
+        await mockDenops.cmd('echo "Running snapshot update..."');
+        
+        const result = executeCommand 
+          ? await executeCommand(packageManager, args, cwd)
+          : await executeActualCommand(packageManager, args, cwd);
+        
+        if (result.success) {
+          await mockDenops.cmd('echo "✅ Snapshot tests updated successfully!"');
+        } else {
+          await mockDenops.cmd(`echohl ErrorMsg | echo "❌ Failed to update snapshots: ${result.message}" | echohl None`);
+        }
       }
     }
   } catch (error) {
@@ -137,6 +179,46 @@ async function executeAsyncCommand(
   } catch (error) {
     const wrappedError = wrapError(error, 'COMMAND_EXECUTION_ERROR');
     await mockDenops.cmd(`echohl ErrorMsg | echo "Async execution error: ${formatErrorMessage(wrappedError)}" | echohl None`);
+  }
+}
+
+/**
+ * プログレス表示付き非同期コマンド実行
+ */
+async function executeAsyncCommandWithProgress(
+  cmd: string,
+  args: string[],
+  cwd: string,
+  mockDenops: MockDenops,
+  progressTracker: ProgressTracker,
+  executeCommand?: (cmd: string, args: string[], cwd: string) => Promise<ExecuteCommandResult>
+): Promise<void> {
+  try {
+    const config = getConfig();
+    
+    const result = executeCommand
+      ? await executeCommand(cmd, args, cwd)
+      : await executeCommandWithProgress({
+          command: cmd,
+          args,
+          cwd,
+          progressTracker,
+          onProgress: config.showExecutionLog ? async (output) => {
+            const logger = getExecutionLogger(mockDenops);
+            await logger.addLog(output.trim());
+          } : undefined
+        });
+    
+    if (result.cancelled) {
+      await progressTracker.stop(undefined, "Async snapshot update cancelled");
+    } else if (result.success) {
+      await progressTracker.stop("Async snapshot update completed successfully!");
+    } else {
+      await progressTracker.stop(undefined, `Async snapshot update failed: ${result.message}`);
+    }
+  } catch (error) {
+    const wrappedError = wrapError(error, 'COMMAND_EXECUTION_ERROR');
+    await progressTracker.stop(undefined, `Async execution error: ${formatErrorMessage(wrappedError)}`);
   }
 }
 

@@ -8,6 +8,12 @@ export interface PluginConfig {
   timeout?: number;
   customTestPatterns?: string[];
   asyncExecution?: boolean;
+  showProgress?: boolean;
+  showSpinner?: boolean;
+  showElapsedTime?: boolean;
+  showPercentage?: boolean;
+  progressUpdateInterval?: number;
+  showExecutionLog?: boolean;
 }
 
 export const DEFAULT_CONFIG: Required<PluginConfig> = {
@@ -26,7 +32,13 @@ export const DEFAULT_CONFIG: Required<PluginConfig> = {
     '**/*.spec.jsx',
     '**/*.spec.tsx'
   ],
-  asyncExecution: true
+  asyncExecution: true,
+  showProgress: true,
+  showSpinner: true,
+  showElapsedTime: true,
+  showPercentage: true,
+  progressUpdateInterval: 100,
+  showExecutionLog: false
 };
 
 let currentConfig: Required<PluginConfig> = { ...DEFAULT_CONFIG };
@@ -113,6 +125,36 @@ function safeGetAsyncExecution(obj: Record<string, unknown>): boolean | undefine
   return isBoolean(value) ? value : undefined;
 }
 
+function safeGetShowProgress(obj: Record<string, unknown>): boolean | undefined {
+  const value = obj.show_progress;
+  return isBoolean(value) ? value : undefined;
+}
+
+function safeGetShowSpinner(obj: Record<string, unknown>): boolean | undefined {
+  const value = obj.show_spinner;
+  return isBoolean(value) ? value : undefined;
+}
+
+function safeGetShowElapsedTime(obj: Record<string, unknown>): boolean | undefined {
+  const value = obj.show_elapsed_time;
+  return isBoolean(value) ? value : undefined;
+}
+
+function safeGetShowPercentage(obj: Record<string, unknown>): boolean | undefined {
+  const value = obj.show_percentage;
+  return isBoolean(value) ? value : undefined;
+}
+
+function safeGetProgressUpdateInterval(obj: Record<string, unknown>): number | undefined {
+  const value = obj.progress_update_interval;
+  return isPositiveNumber(value) && value >= 50 && value <= 1000 ? value : undefined;
+}
+
+function safeGetShowExecutionLog(obj: Record<string, unknown>): boolean | undefined {
+  const value = obj.show_execution_log;
+  return isBoolean(value) ? value : undefined;
+}
+
 /**
  * Vim変数から設定を読み込み（型安全版）
  */
@@ -159,6 +201,36 @@ export function loadConfigFromVim(vimConfig: unknown): void {
   const asyncExecution = safeGetAsyncExecution(configObj);
   if (asyncExecution !== undefined) {
     config.asyncExecution = asyncExecution;
+  }
+  
+  const showProgress = safeGetShowProgress(configObj);
+  if (showProgress !== undefined) {
+    config.showProgress = showProgress;
+  }
+  
+  const showSpinner = safeGetShowSpinner(configObj);
+  if (showSpinner !== undefined) {
+    config.showSpinner = showSpinner;
+  }
+  
+  const showElapsedTime = safeGetShowElapsedTime(configObj);
+  if (showElapsedTime !== undefined) {
+    config.showElapsedTime = showElapsedTime;
+  }
+  
+  const showPercentage = safeGetShowPercentage(configObj);
+  if (showPercentage !== undefined) {
+    config.showPercentage = showPercentage;
+  }
+  
+  const progressUpdateInterval = safeGetProgressUpdateInterval(configObj);
+  if (progressUpdateInterval !== undefined) {
+    config.progressUpdateInterval = progressUpdateInterval;
+  }
+  
+  const showExecutionLog = safeGetShowExecutionLog(configObj);
+  if (showExecutionLog !== undefined) {
+    config.showExecutionLog = showExecutionLog;
   }
   
   updateConfig(config);

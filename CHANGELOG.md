@@ -8,7 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Future features documented in ROADMAP.md
+- Progress tracking with real-time updates during test execution
+- Animated spinner display with customizable update interval
+- Elapsed time tracking for all operations
+- Test completion percentage display when available
+- Cancellation support with proper cleanup (Ctrl+C)
+- Execution logging system with timestamped entries
+- `:SnapshotLogs` command to view execution history
+- `:SnapshotClearLogs` command to clear log history
+- Comprehensive configuration options via `g:snapshot_runner`
+- Improved async execution with progress feedback
 
 ## [1.0.0] - 2024-12-26
 

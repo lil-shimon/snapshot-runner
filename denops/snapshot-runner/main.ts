@@ -2,8 +2,18 @@ import { Denops } from "https://deno.land/x/denops_std@v6.5.0/mod.ts";
 import * as fn from "https://deno.land/x/denops_std@v6.5.0/function/mod.ts";
 import { snapshotDispatcher, snapshotTestDispatcher, type FileInfo } from "../../src/dispatchers.ts";
 import { readFileContent, validateFilePath, validateLineNumber } from "../../src/fileReader.ts";
+import { getExecutionLogger } from "../../src/executionLog.ts";
+import { loadConfigFromVim } from "../../src/config.ts";
 
 export async function main(denops: Denops): Promise<void> {
+  // 設定の読み込み
+  try {
+    const vimConfig = await denops.eval('get(g:, "snapshot_runner", {})');
+    loadConfigFromVim(vimConfig);
+  } catch (error) {
+    // 設定読み込みエラーは無視（デフォルト設定を使用）
+  }
+  
   denops.dispatcher = {
     async snapshot(): Promise<void> {
       const cwd = await fn.getcwd(denops);
@@ -47,10 +57,23 @@ export async function main(denops: Denops): Promise<void> {
         await denops.cmd(`echohl ErrorMsg | echo "❌ Unexpected error: ${errorMessage}" | echohl None`);
       }
     },
+    
+    async showLogs(): Promise<void> {
+      const logger = getExecutionLogger(denops);
+      await logger.showLogs();
+    },
+    
+    async clearLogs(): Promise<void> {
+      const logger = getExecutionLogger(denops);
+      logger.clearLogs();
+      await denops.cmd('echo "Execution logs cleared"');
+    },
   };
 
   // コマンド登録
   await denops.cmd(`command! Snapshot call denops#notify("${denops.name}", "snapshot", [])`);
   await denops.cmd(`command! SnapshotTest call denops#notify("${denops.name}", "snapshotTest", [])`);
   await denops.cmd(`command! SnapshotAll call denops#notify("${denops.name}", "snapshot", [])`);
+  await denops.cmd(`command! SnapshotLogs call denops#notify("${denops.name}", "showLogs", [])`);
+  await denops.cmd(`command! SnapshotClearLogs call denops#notify("${denops.name}", "clearLogs", [])`);
 }
