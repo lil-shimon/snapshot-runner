@@ -7,6 +7,7 @@ export interface PluginConfig {
   autoSaveBeforeRun?: boolean;
   timeout?: number;
   customTestPatterns?: string[];
+  asyncExecution?: boolean;
 }
 
 export const DEFAULT_CONFIG: Required<PluginConfig> = {
@@ -24,7 +25,8 @@ export const DEFAULT_CONFIG: Required<PluginConfig> = {
     '**/*.spec.ts',
     '**/*.spec.jsx',
     '**/*.spec.tsx'
-  ]
+  ],
+  asyncExecution: true
 };
 
 let currentConfig: Required<PluginConfig> = { ...DEFAULT_CONFIG };
